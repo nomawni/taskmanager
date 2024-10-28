@@ -1,0 +1,6 @@
+# config/packages/lexik_jwt_authentication.yaml
+lexik_jwt_authentication:
+    secret_key:       '%kernel.project_dir%/config/jwt/private.pem' # path to private key
+    public_key:       '%kernel.project_dir%/config/jwt/public.pem'  # path to public key
+    pass_phrase:      '%env(JWT_PASSPHRASE)%'                        # passphrase
+    token_ttl:        3600

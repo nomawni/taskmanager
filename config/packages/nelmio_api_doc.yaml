@@ -1,0 +1,22 @@
+# config/packages/nelmio_api_doc.yaml
+nelmio_api_doc:
+    documentation:
+        info:
+            title: 'Task Manager API'
+            description: 'A RESTful API for managing tasks.'
+            version: '1.0.0'
+        security:
+            - bearerAuth: []
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+    areas:
+        path_patterns:
+            - ^/api(?!/docs)
+    html_config:
+        swagger_ui_config:
+            displayOperationId: true
+            displayRequestDuration: true
