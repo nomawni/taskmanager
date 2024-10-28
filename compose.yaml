@@ -1,6 +1,50 @@
 
 services:
 ###> doctrine/doctrine-bundle ###
+  app:
+    ports:
+      - "8001:8000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskmanager_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+    depends_on:
+      - db
+    command: php -S 0.0.0.0:8000 -t public
+
+  db:
+    image: mysql:5.7
+    container_name: taskmanager_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: taskmanager
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: taskmanager_phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
@@ -22,4 +66,9 @@ services:
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
+  db_data:
 ###< doctrine/doctrine-bundle ###
+
+networks:
+  app-network:
+    driver: bridge
