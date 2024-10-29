@@ -1,0 +1,51 @@
+# .github/workflows/php.yml
+name: PHP CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: taskmanager_test
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_USER: db_user
+          MYSQL_PASSWORD: db_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, intl, pdo_mysql, zip, xdebug
+        coverage: xdebug
+
+    - name: Install dependencies
+      run: composer install --no-progress --no-suggest --prefer-dist
+
+    - name: Run migrations
+      run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
+
+    - name: Load fixtures
+      run: php bin/console doctrine:fixtures:load --no-interaction --env=test
+
+    - name: Run PHPUnit Tests
+      run: vendor/bin/phpunit --coverage-text --colors=never
